@@ -1,0 +1,20 @@
+import pandas as pd
+
+print("=" * 60)
+print("Diabetes Prediction Dataset")
+print("=" * 60)
+df1 = pd.read_csv('data/raw/diabetes_prediction_dataset.csv')
+print("Shape:", df1.shape)
+print("Columns:", list(df1.columns))
+print("dtypes:\n", df1.dtypes)
+print("Last column value counts:\n", df1.iloc[:, -1].value_counts())
+print()
+
+print("=" * 60)
+print("CKD Stages Dataset")
+print("=" * 60)
+df2 = pd.read_csv('data/raw/ckd_stages_dataset.csv')
+print("Shape:", df2.shape)
+print("Columns:", list(df2.columns))
+print("dtypes:\n", df2.dtypes)
+print("Last column value counts:\n", df2.iloc[:, -1].value_counts())

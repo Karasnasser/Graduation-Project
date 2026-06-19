@@ -1,0 +1,36 @@
+version: "3.9"
+
+services:
+  kidney-api:
+    build: .
+    container_name: kidney_disease_api
+    ports:
+      - "8000:8000"          # API accessible at http://localhost:8000
+    env_file:
+      - .env                 # Copy .env.example → .env and add your GEMINI_API_KEY
+    volumes:
+      - ./models:/app/models                     # ML model checkpoints (persist trained models)
+      - ./generated_reports:/app/generated_reports  # Generated PDF reports
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+# ── Notes for backend developers ────────────────────────────────────────────
+# Quick start:
+#   1. cp .env.example .env        (then add GEMINI_API_KEY if you want the chat feature)
+#   2. docker compose up --build
+#   3. Open http://localhost:8000/docs   (Swagger UI — interactive API explorer)
+#
+# Endpoints overview:
+#   POST /predict          → ML-based CKD prediction (returns JSON)
+#   POST /stage            → GFR staging (KDIGO guidelines)
+#   POST /egfr             → Calculate eGFR value
+#   POST /report/generate  → Generate PDF report (returns file)
+#   POST /chat             → AI medical Q&A (requires GEMINI_API_KEY)
+#   POST /monitor/add      → Log patient measurement
+#   GET  /health           → Health check

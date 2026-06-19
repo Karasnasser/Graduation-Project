@@ -1,0 +1,202 @@
+[
+  {
+    "date": "2025-01-01",
+    "egfr": 85.0,
+    "creatinine": 1.2,
+    "uacr": 30.0,
+    "hba1c": 6.5,
+    "bp_systolic": null,
+    "bp_diastolic": null,
+    "notes": null
+  },
+  {
+    "date": "2025-01-01",
+    "egfr": 85.0,
+    "creatinine": 1.2,
+    "uacr": 30.0,
+    "hba1c": 6.5,
+    "bp_systolic": null,
+    "bp_diastolic": null,
+    "notes": null
+  },
+  {
+    "date": "2025-01-01",
+    "egfr": 85.0,
+    "creatinine": 1.2,
+    "uacr": 30.0,
+    "hba1c": 6.5,
+    "bp_systolic": null,
+    "bp_diastolic": null,
+    "notes": null
+  },
+  {
+    "date": "2025-01-01",
+    "egfr": 85.0,
+    "creatinine": 1.2,
+    "uacr": 30.0,
+    "hba1c": 6.5,
+    "bp_systolic": null,
+    "bp_diastolic": null,
+    "notes": null
+  },
+  {
+    "date": "2025-02-01",
+    "egfr": 82.0,
+    "creatinine": 1.3,
+    "uacr": 34.0,
+    "hba1c": 6.7,
+    "bp_systolic": null,
+    "bp_diastolic": null,
+    "notes": null
+  },
+  {
+    "date": "2025-02-01",
+    "egfr": 82.0,
+    "creatinine": 1.3,
+    "uacr": 34.0,
+    "hba1c": 6.7,
+    "bp_systolic": null,
+    "bp_diastolic": null,
+    "notes": null
+  },
+  {
+    "date": "2025-02-01",
+    "egfr": 82.0,
+    "creatinine": 1.3,
+    "uacr": 34.0,
+    "hba1c": 6.7,
+    "bp_systolic": null,
+    "bp_diastolic": null,
+    "notes": null
+  },
+  {
+    "date": "2025-02-01",
+    "egfr": 82.0,
+    "creatinine": 1.3,
+    "uacr": 34.0,
+    "hba1c": 6.7,
+    "bp_systolic": null,
+    "bp_diastolic": null,
+    "notes": null
+  },
+  {
+    "date": "2025-03-01",
+    "egfr": 78.0,
+    "creatinine": 1.4,
+    "uacr": 40.0,
+    "hba1c": 6.9,
+    "bp_systolic": null,
+    "bp_diastolic": null,
+    "notes": null
+  },
+  {
+    "date": "2025-03-01",
+    "egfr": 78.0,
+    "creatinine": 1.4,
+    "uacr": 40.0,
+    "hba1c": 6.9,
+    "bp_systolic": null,
+    "bp_diastolic": null,
+    "notes": null
+  },
+  {
+    "date": "2025-03-01",
+    "egfr": 78.0,
+    "creatinine": 1.4,
+    "uacr": 40.0,
+    "hba1c": 6.9,
+    "bp_systolic": null,
+    "bp_diastolic": null,
+    "notes": null
+  },
+  {
+    "date": "2025-03-01",
+    "egfr": 78.0,
+    "creatinine": 1.4,
+    "uacr": 40.0,
+    "hba1c": 6.9,
+    "bp_systolic": null,
+    "bp_diastolic": null,
+    "notes": null
+  },
+  {
+    "date": "2025-04-01",
+    "egfr": 65.0,
+    "creatinine": 1.8,
+    "uacr": 80.0,
+    "hba1c": 7.2,
+    "bp_systolic": null,
+    "bp_diastolic": null,
+    "notes": null
+  },
+  {
+    "date": "2025-04-01",
+    "egfr": 65.0,
+    "creatinine": 1.8,
+    "uacr": 80.0,
+    "hba1c": 7.2,
+    "bp_systolic": null,
+    "bp_diastolic": null,
+    "notes": null
+  },
+  {
+    "date": "2025-04-01",
+    "egfr": 65.0,
+    "creatinine": 1.8,
+    "uacr": 80.0,
+    "hba1c": 7.2,
+    "bp_systolic": null,
+    "bp_diastolic": null,
+    "notes": null
+  },
+  {
+    "date": "2025-04-01",
+    "egfr": 65.0,
+    "creatinine": 1.8,
+    "uacr": 80.0,
+    "hba1c": 7.2,
+    "bp_systolic": null,
+    "bp_diastolic": null,
+    "notes": null
+  },
+  {
+    "date": "2025-05-01",
+    "egfr": 45.0,
+    "creatinine": 2.5,
+    "uacr": 180.0,
+    "hba1c": 8.5,
+    "bp_systolic": null,
+    "bp_diastolic": null,
+    "notes": null
+  },
+  {
+    "date": "2025-05-01",
+    "egfr": 45.0,
+    "creatinine": 2.5,
+    "uacr": 180.0,
+    "hba1c": 8.5,
+    "bp_systolic": null,
+    "bp_diastolic": null,
+    "notes": null
+  },
+  {
+    "date": "2025-05-01",
+    "egfr": 45.0,
+    "creatinine": 2.5,
+    "uacr": 180.0,
+    "hba1c": 8.5,
+    "bp_systolic": null,
+    "bp_diastolic": null,
+    "notes": null
+  },
+  {
+    "date": "2025-05-01",
+    "egfr": 45.0,
+    "creatinine": 2.5,
+    "uacr": 180.0,
+    "hba1c": 8.5,
+    "bp_systolic": null,
+    "bp_diastolic": null,
+    "notes": null
+  }
+]

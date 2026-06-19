@@ -1,0 +1,296 @@
+{
+	"info": {
+		"_postman_id": "kidney-disease-api-collection",
+		"name": "Kidney Disease Prediction API",
+		"description": "Complete API collection for the Kidney Disease Prediction System.\n\nSetup:\n1. Run the server: uvicorn api:app --host 0.0.0.0 --port 8000\n2. Import this file into Postman\n3. All endpoints are ready to test!\n\nBase URL: http://localhost:8000",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000"
+		}
+	],
+	"item": [
+		{
+			"name": "1. Health & Info",
+			"item": [
+				{
+					"name": "Root - API Info",
+					"request": {
+						"method": "GET",
+						"url": "{{base_url}}/",
+						"description": "Get API information and version."
+					}
+				},
+				{
+					"name": "Health Check",
+					"request": {
+						"method": "GET",
+						"url": "{{base_url}}/health",
+						"description": "Check if all models are loaded and services are running."
+					}
+				}
+			]
+		},
+		{
+			"name": "2. Prediction",
+			"item": [
+				{
+					"name": "Predict CKD (Normal Patient)",
+					"request": {
+						"method": "POST",
+						"url": "{{base_url}}/predict",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"patient\": {\n    \"name\": \"Ahmed Mohamed\",\n    \"age\": 35,\n    \"sex\": \"male\"\n  },\n  \"lab_values\": {\n    \"creatinine\": 0.9,\n    \"blood_urea\": 25,\n    \"hemoglobin\": 14.5,\n    \"blood_glucose\": 95,\n    \"blood_pressure\": 120,\n    \"acr\": 10\n  }\n}"
+						},
+						"description": "Predict CKD for a healthy patient — should return low risk."
+					}
+				},
+				{
+					"name": "Predict CKD (High Risk Patient)",
+					"request": {
+						"method": "POST",
+						"url": "{{base_url}}/predict",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"patient\": {\n    \"name\": \"Fatima Ali\",\n    \"age\": 65,\n    \"sex\": \"female\"\n  },\n  \"lab_values\": {\n    \"creatinine\": 3.5,\n    \"blood_urea\": 85,\n    \"hemoglobin\": 9.0,\n    \"blood_glucose\": 250,\n    \"blood_pressure\": 170,\n    \"acr\": 500\n  }\n}"
+						},
+						"description": "Predict CKD for a high-risk patient — should return high risk + alerts."
+					}
+				},
+				{
+					"name": "Predict from Image (OCR)",
+					"request": {
+						"method": "POST",
+						"url": "{{base_url}}/predict/image",
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "image",
+									"type": "file",
+									"description": "Upload a lab report image (JPG/PNG)"
+								},
+								{
+									"key": "patient_age",
+									"value": "50",
+									"type": "text"
+								},
+								{
+									"key": "patient_sex",
+									"value": "male",
+									"type": "text"
+								}
+							]
+						},
+						"description": "Upload a lab report image and extract values using OCR."
+					}
+				}
+			]
+		},
+		{
+			"name": "3. Staging & eGFR",
+			"item": [
+				{
+					"name": "Calculate eGFR",
+					"request": {
+						"method": "POST",
+						"url": "{{base_url}}/egfr",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"creatinine\": 1.2,\n  \"age\": 55,\n  \"is_female\": false\n}"
+						},
+						"description": "Calculate eGFR using CKD-EPI 2021 equation."
+					}
+				},
+				{
+					"name": "Full CKD Staging",
+					"request": {
+						"method": "POST",
+						"url": "{{base_url}}/stage",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"creatinine\": 2.1,\n  \"acr\": 150,\n  \"age\": 60,\n  \"is_female\": false\n}"
+						},
+						"description": "Get full KDIGO staging with risk level, recommendations, and color coding."
+					}
+				}
+			]
+		},
+		{
+			"name": "4. Chat (RAG)",
+			"item": [
+				{
+					"name": "Chat - Arabic Question",
+					"request": {
+						"method": "POST",
+						"url": "{{base_url}}/chat",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"question\": \"ما هو مرض الكلى المزمن وما أسبابه؟\"\n}"
+						},
+						"description": "Ask a medical question in Arabic."
+					}
+				},
+				{
+					"name": "Chat - English Question",
+					"request": {
+						"method": "POST",
+						"url": "{{base_url}}/chat",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"question\": \"What does an eGFR of 28 mean for my patient?\"\n}"
+						},
+						"description": "Ask a medical question in English."
+					}
+				},
+				{
+					"name": "Chat - With Patient Context",
+					"request": {
+						"method": "POST",
+						"url": "{{base_url}}/chat",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"question\": \"What are the recommended treatments?\",\n  \"patient_context\": {\n    \"age\": 60,\n    \"gfr_stage\": \"G3b\",\n    \"creatinine\": 2.5,\n    \"acr\": 200\n  }\n}"
+						},
+						"description": "Ask with patient context for personalized answer."
+					}
+				}
+			]
+		},
+		{
+			"name": "5. Smart Alerts",
+			"item": [
+				{
+					"name": "Symptom Analysis (NLP)",
+					"request": {
+						"method": "POST",
+						"url": "{{base_url}}/alerts/symptoms",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"symptoms_text\": \"Patient complains of severe fatigue, swollen ankles, dark urine, and loss of appetite for the past 2 weeks.\",\n  \"patient_id\": \"P001\"\n}"
+						},
+						"description": "Analyze patient symptoms using NLP."
+					}
+				},
+				{
+					"name": "Anomaly Detection",
+					"request": {
+						"method": "POST",
+						"url": "{{base_url}}/alerts/analyze",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"patient_id\": \"P001\",\n  \"readings\": {\n    \"creatinine\": 4.5,\n    \"egfr\": 18,\n    \"potassium\": 6.2,\n    \"hemoglobin\": 8.5,\n    \"blood_pressure\": 180\n  }\n}"
+						},
+						"description": "Detect anomalies in lab readings and generate alerts."
+					}
+				},
+				{
+					"name": "Get Patient Alerts",
+					"request": {
+						"method": "GET",
+						"url": "{{base_url}}/alerts/patient/P001",
+						"description": "Get all alerts for a specific patient."
+					}
+				}
+			]
+		},
+		{
+			"name": "6. Reports & Explain",
+			"item": [
+				{
+					"name": "Generate PDF Report",
+					"request": {
+						"method": "POST",
+						"url": "{{base_url}}/report",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"patient_name\": \"Mohamed Ahmed\",\n  \"age\": 55,\n  \"sex\": \"male\",\n  \"creatinine\": 2.1,\n  \"acr\": 150,\n  \"egfr\": 35\n}"
+						},
+						"description": "Generate a PDF medical report for a patient."
+					}
+				},
+				{
+					"name": "AI Explain Results",
+					"request": {
+						"method": "POST",
+						"url": "{{base_url}}/explain",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"prediction\": \"ckd\",\n  \"probability\": 0.87,\n  \"egfr\": 35,\n  \"gfr_stage\": \"G3b\",\n  \"risk_level\": \"High Risk\"\n}"
+						},
+						"description": "Get an AI-generated explanation for prediction results."
+					}
+				}
+			]
+		}
+	]
+}

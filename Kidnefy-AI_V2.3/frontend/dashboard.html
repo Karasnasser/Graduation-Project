@@ -1,0 +1,1851 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical AI Platform</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Cairo:wght@400;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Cairo:wght@400;600;700&display=swap');
+
+        :root {
+            --bg-body: #0f1117;
+            --bg-card: #1a1f2e;
+            --bg-card-hover: #1f2537;
+            --bg-input: #0f1117;
+            --primary: #4f8ef7;
+            --primary-hover: #6aa1ff;
+            --primary-glow: rgba(79,142,247,0.15);
+            --teal: #00d4aa;
+            --text-main: #e2e8f0;
+            --text-muted: #94a3b8;
+            --border: rgba(255,255,255,0.07);
+            --border-active: rgba(79,142,247,0.4);
+            --shadow-card: 0 4px 24px rgba(0,0,0,0.4);
+            --shadow-glow: 0 0 20px rgba(79,142,247,0.1);
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --risk-low-bg: rgba(34,197,94,0.12);
+            --risk-low-text: #4ade80;
+            --risk-moderate-bg: rgba(234,179,8,0.12);
+            --risk-moderate-text: #facc15;
+            --risk-high-bg: rgba(249,115,22,0.12);
+            --risk-high-text: #fb923c;
+            --risk-critical-bg: rgba(239,68,68,0.12);
+            --risk-critical-text: #f87171;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo','Inter',sans-serif; }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ── Sidebar ── */
+        .sidebar {
+            position: fixed;
+            top: 0; right: 0;
+            width: 240px;
+            height: 100vh;
+            background: linear-gradient(180deg, #1a1f2e 0%, #0f1117 100%);
+            border-left: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 24px 0;
+            z-index: 200;
+        }
+
+        .sidebar-logo {
+            padding: 0 20px 24px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 16px;
+        }
+
+        .sidebar-logo .brand {
+            font-size: 20px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--teal));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .sidebar-logo .tagline {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .nav-items { flex: 1; padding: 0 12px; overflow-y: auto; }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 11px 12px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-muted);
+            transition: all 0.2s;
+            margin-bottom: 2px;
+            border: 1px solid transparent;
+        }
+
+        .nav-item:hover { background: var(--primary-glow); color: var(--text-main); }
+
+        .nav-item.active {
+            background: var(--primary-glow);
+            color: var(--primary);
+            border-color: var(--border-active);
+        }
+
+        .nav-item .nav-icon { font-size: 16px; width: 24px; text-align: center; }
+
+        .sidebar-footer {
+            padding: 16px 20px 0;
+            border-top: 1px solid var(--border);
+        }
+
+        .system-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--risk-low-text);
+        }
+
+        .system-status.offline { color: var(--risk-critical-text); }
+
+        .status-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        /* ── Main Content ── */
+        main {
+            margin-right: 240px;
+            flex: 1;
+            padding: 32px 40px;
+            min-height: 100vh;
+        }
+
+        .page-title {
+            font-size: 26px;
+            font-weight: 800;
+            margin-bottom: 6px;
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+        }
+
+        .page-subtitle {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 28px;
+        }
+
+        .tab-content { display: none; animation: slideInUp 0.35s ease; }
+        .tab-content.active { display: block; }
+
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── Cards ── */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-card);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover { border-color: rgba(255,255,255,0.12); box-shadow: var(--shadow-glow); }
+
+        .card-header {
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* ── Grids ── */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+
+        /* ── Forms ── */
+        .form-group { margin-bottom: 16px; }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 14px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            color: var(--text-main);
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-glow);
+        }
+
+        .form-group select option { background: #1a1f2e; }
+
+        /* ── Buttons ── */
+        .btn {
+            padding: 11px 20px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), #6366f1);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(79,142,247,0.35);
+        }
+
+        .btn-teal {
+            background: linear-gradient(135deg, var(--teal), #06b6d4);
+            color: #0f1117;
+            font-weight: 800;
+        }
+
+        .btn-teal:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,212,170,0.3); }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-main);
+        }
+
+        .btn-outline:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.2); }
+
+        .btn-block { width: 100%; padding: 14px; }
+
+        /* ── Preset Cards ── */
+        .preset-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 24px; }
+
+        .preset-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 14px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .preset-btn:hover {
+            border-color: var(--primary);
+            background: var(--primary-glow);
+            transform: translateY(-2px);
+        }
+
+        .preset-btn .icon { font-size: 26px; margin-bottom: 6px; display: block; }
+        .preset-btn .title { font-size: 13px; font-weight: 700; color: var(--text-main); }
+        .preset-btn .subtitle { font-size: 11px; color: var(--text-muted); }
+
+        /* ── Insight / Result Cards ── */
+        .results-banner {
+            background: rgba(34,197,94,0.08);
+            border: 1px solid rgba(34,197,94,0.25);
+            border-radius: var(--radius-md);
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .results-banner h4 { color: #4ade80; font-size: 15px; margin-bottom: 2px; }
+        .results-banner p { color: #86efac; font-size: 13px; margin: 0; }
+
+        .insight-card {
+            border-radius: var(--radius-md);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .insight-title { font-size: 13px; font-weight: 600; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        .insight-value { font-size: 30px; font-weight: 800; margin-bottom: 4px; font-family: 'Inter', sans-serif; }
+        .insight-desc  { font-size: 13px; opacity: 0.85; }
+
+        .risk-high     { background: var(--risk-high-bg);     color: var(--risk-high-text); }
+        .risk-moderate { background: var(--risk-moderate-bg); color: var(--risk-moderate-text); }
+        .risk-low      { background: var(--risk-low-bg);      color: var(--risk-low-text); }
+        .risk-critical { background: var(--risk-critical-bg); color: var(--risk-critical-text); }
+        .risk-default  { background: rgba(79,142,247,0.08);   color: var(--primary); }
+
+        .meter-bar { height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; margin-top: 12px; }
+        .meter-fill { height: 100%; border-radius: 3px; transition: width 1.2s ease; }
+
+        /* ── Upload Area ── */
+        .upload-area {
+            border: 2px dashed var(--border);
+            border-radius: var(--radius-lg);
+            padding: 56px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.25s;
+            background: var(--bg-input);
+        }
+
+        .upload-area:hover, .upload-area.dragover {
+            border-color: var(--primary);
+            background: var(--primary-glow);
+        }
+
+        .upload-icon { font-size: 48px; color: var(--primary); margin-bottom: 14px; opacity: 0.85; }
+        .upload-text { font-size: 16px; font-weight: 700; color: var(--text-main); margin-bottom: 8px; }
+        .upload-hint { font-size: 13px; color: var(--text-muted); }
+
+        #ocrPreview {
+            max-width: 100%; max-height: 400px;
+            border-radius: 10px; margin-top: 20px;
+            display: none;
+            border: 1px solid var(--border);
+        }
+
+        /* ── Smart Alerts ── */
+        .alert-item {
+            padding: 16px; border-radius: var(--radius-md);
+            margin-bottom: 12px; display: flex; gap: 16px;
+            align-items: flex-start; border: 1px solid transparent;
+        }
+
+        .alert-CRITICAL { background: var(--risk-critical-bg); border-color: rgba(239,68,68,0.3); }
+        .alert-WARNING  { background: var(--risk-high-bg);     border-color: rgba(249,115,22,0.3); }
+        .alert-INFO     { background: rgba(79,142,247,0.08);   border-color: rgba(79,142,247,0.2); }
+        .alert-icon { font-size: 24px; }
+        .alert-content h4 { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+        .alert-content p  { font-size: 13px; opacity: 0.85; margin-bottom: 6px; }
+        .alert-time { font-size: 11px; opacity: 0.6; }
+
+        /* ── Chatbot ── */
+        .chat-container {
+            height: 580px; display: flex; flex-direction: column;
+            border: 1px solid var(--border); border-radius: var(--radius-lg);
+            background: var(--bg-card); overflow: hidden;
+        }
+
+        .chat-messages {
+            flex: 1; padding: 24px; overflow-y: auto;
+            background: var(--bg-body); display: flex;
+            flex-direction: column; gap: 16px;
+        }
+
+        .message { max-width: 80%; display: flex; gap: 12px; }
+        .message.user { align-self: flex-end; flex-direction: row-reverse; }
+        .message.bot  { align-self: flex-start; }
+
+        .msg-avatar {
+            width: 34px; height: 34px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px; flex-shrink: 0;
+        }
+
+        .message.user .msg-avatar { background: linear-gradient(135deg, var(--primary), #6366f1); color: white; }
+        .message.bot  .msg-avatar { background: var(--bg-card); border: 1px solid var(--border); }
+
+        .msg-bubble { padding: 12px 16px; border-radius: 14px; font-size: 14px; line-height: 1.6; }
+        .message.user .msg-bubble { background: linear-gradient(135deg, var(--primary), #6366f1); color: white; border-top-right-radius: 3px; }
+        .message.bot  .msg-bubble { background: var(--bg-card); border: 1px solid var(--border); color: var(--text-main); border-top-left-radius: 3px; }
+
+        .chat-input-area {
+            padding: 16px; background: var(--bg-card);
+            border-top: 1px solid var(--border); display: flex; gap: 12px;
+        }
+
+        .chat-input-area input {
+            flex: 1; padding: 12px 18px;
+            background: var(--bg-input); border: 1px solid var(--border);
+            border-radius: 24px; font-size: 14px; color: var(--text-main);
+            outline: none; font-family: inherit; transition: all 0.2s;
+        }
+
+        .chat-input-area input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); }
+
+        .chat-send-btn {
+            width: 46px; height: 46px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), #6366f1);
+            color: white; border: none; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s; font-size: 18px;
+        }
+
+        .chat-send-btn:hover { transform: scale(1.08); box-shadow: 0 6px 20px rgba(79,142,247,0.4); }
+
+        .msg-bubble strong { font-weight: 700; }
+        .msg-bubble ul { margin-right: 20px; margin-top: 8px; }
+        .msg-bubble li { margin-bottom: 4px; }
+
+        /* ── Spinner ── */
+        .spinner {
+            width: 18px; height: 18px;
+            border: 2px solid rgba(255,255,255,0.25);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── Utility ── */
+        .hidden { display: none !important; }
+
+        /* ── Scrollbar ── */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+    </style>
+
+
+</head>
+
+<body>
+
+    <!-- ── Sidebar Navigation ── -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <div class="brand">🫀 Kidnefy AI</div>
+            <div class="tagline">Kidney Disease Platform</div>
+        </div>
+
+        <nav class="nav-items">
+            <div class="nav-item active" onclick="switchTab('analysis')" id="nav-analysis">
+                <span class="nav-icon">🔬</span> AI Analysis
+            </div>
+
+            <div class="nav-item" onclick="switchTab('ct')" id="nav-ct">
+                <span class="nav-icon">🫁</span> CT Scan
+            </div>
+            <div class="nav-item" onclick="switchTab('alerts')" id="nav-alerts">
+                <span class="nav-icon">🔔</span> Smart Alerts
+            </div>
+            <div class="nav-item" onclick="switchTab('whatif')" id="nav-whatif">
+                <span class="nav-icon">🔄</span> What-If Simulator
+            </div>
+            <div class="nav-item" onclick="switchTab('diet')" id="nav-diet">
+                <span class="nav-icon">🥗</span> Diet Planner
+            </div>
+            <div class="nav-item" onclick="switchTab('chat')" id="nav-chat">
+                <span class="nav-icon">💬</span> AI Assistant
+            </div>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="system-status" id="sysStatus">
+                <div class="status-dot"></div>
+                <span id="sysStatusText">System Online</span>
+            </div>
+            <div style="font-size:11px; color:var(--text-muted); margin-top:8px;">localhost:8000</div>
+        </div>
+    </aside>
+
+    <main>
+        <!-- ========================================== -->
+        <!-- TAB 1: AI Analysis -->
+        <!-- ========================================== -->
+        <div id="tab-analysis" class="tab-content active">
+            <h1 class="page-title">AI Analysis</h1>
+            <p class="page-subtitle">Upload patient lab values for CKD prediction, staging, and risk stratification.</p>
+
+            <!-- Pre-fill Data Cards -->
+            <div class="preset-grid">
+                <div class="preset-btn" onclick="fillAnalysisForm('healthy')">
+                    <span class="icon"></span>
+                    <div class="title">Healthy Patient</div>
+                    <div class="subtitle">eGFR > 90, Normal UACR</div>
+                </div>
+                <div class="preset-btn" onclick="fillAnalysisForm('mild')">
+                    <span class="icon"></span>
+                    <div class="title">Mild CKD (Stage 2/3)</div>
+                    <div class="subtitle">Elevated Creatinine</div>
+                </div>
+                <div class="preset-btn" onclick="fillAnalysisForm('advanced')">
+                    <span class="icon"></span>
+                    <div class="title">Advanced CKD</div>
+                    <div class="subtitle">High UACR, Low eGFR</div>
+                </div>
+                <div class="preset-btn" onclick="fillAnalysisForm('critical')">
+                    <span class="icon">❤️</span>
+                    <div class="title">Critical Risk</div>
+                    <div class="subtitle">ESRD Risk, High BP</div>
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <!-- Input Form -->
+                <div class="card">
+                    <div class="card-header">Patient Lab Data</div>
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label>Patient ID / Name</label>
+                            <input type="text" id="a_name" value="Ahmed Patient" placeholder="Optional">
+                        </div>
+                        <div class="form-group">
+                            <label>Age *</label>
+                            <input type="number" id="a_age" value="58" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Sex *</label>
+                            <select id="a_sex">
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Serum Creatinine (mg/dL) *</label>
+                            <input type="number" id="a_cr" step="0.1" value="1.5" required>
+                        </div>
+                        <div class="form-group">
+                            <label>UACR (mg/g)</label>
+                            <input type="number" id="a_uacr" step="0.1" value="150"
+                                placeholder="Albumin/Creatinine Ratio">
+                        </div>
+                        <div class="form-group">
+                            <label>HbA1c (%)</label>
+                            <input type="number" id="a_hba1c" step="0.1" value="7.2" placeholder="Glycated Hemoglobin">
+                        </div>
+                        <div class="form-group">
+                            <label>Systolic BP (mmHg)</label>
+                            <input type="number" id="a_bp" value="140" placeholder="e.g. 120">
+                        </div>
+                        <div class="form-group">
+                            <label>Diabetes Type</label>
+                            <select id="a_dm">
+                                <option value="0">None / Other</option>
+                                <option value="1">Type 1</option>
+                                <option value="2">Type 2</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary btn-block" onclick="runAIAnalysis()" id="btnAnalyze">
+                        <span>Run AI Analysis</span>
+                    </button>
+                    <div id="analysisError" style="color:red; font-size:13px; margin-top:12px; text-align:center;">
+                    </div>
+                </div>
+
+                <!-- Results Dashboard -->
+                <div>
+                    <div id="analysisResultsEmpty" class="card"
+                        style="height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; opacity:0.6;">
+                        <span style="font-size:48px; margin-bottom:16px;"></span>
+                        <h3 style="font-family:'Inter'; margin-bottom:8px;">Ready for Analysis</h3>
+                        <p style="font-size:14px;">Fill the patient data and run the AI analysis to view results here.
+                        </p>
+                    </div>
+
+                    <div id="analysisResultsData" class="hidden">
+                        <div class="results-banner">
+                            <div class="icon">✅</div>
+                            <div>
+                                <h4>Analysis Complete</h4>
+                                <p>The AI system has analyzed the provided data and generated a report.</p>
+                            </div>
+                        </div>
+
+                        <div class="grid-2" style="margin-bottom:24px;">
+                            <div class="insight-card" id="resRiskCard">
+                                <div class="insight-title"><span id="resRiskIcon">⚠️</span> Risk Level</div>
+                                <div class="insight-value" id="resRisk">High</div>
+                                <div class="meter-bar">
+                                    <div class="meter-fill" id="resRiskBar" style="background:currentColor; width:0%">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="insight-card risk-default">
+                                <div class="insight-title"> CKD Stage</div>
+                                <div class="insight-value" id="resStage">Stage IIIb</div>
+                                <div class="insight-desc" id="resStageDesc">Moderate decrease</div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">Key Indicators</div>
+                            <div class="grid-2">
+                                <div>
+                                    <div
+                                        style="font-size:12px; color:var(--text-muted); margin-bottom:4px; font-weight:600;">
+                                        eGFR (ml/min/1.73m²)</div>
+                                    <div style="font-size:20px; font-weight:700; font-family:'Inter';" id="resEgfr">30
+                                    </div>
+                                </div>
+                                <div>
+                                    <div
+                                        style="font-size:12px; color:var(--text-muted); margin-bottom:4px; font-weight:600;">
+                                        Prediction Probability</div>
+                                    <div style="font-size:20px; font-weight:700; font-family:'Inter';" id="resProb">85%
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">AI Explanation</div>
+                            <ul id="resAlerts"
+                                style="font-size:14px; margin-right:20px; color:var(--text-muted); line-height:1.6;">
+                                <li>The AI system classified the patient based on available data.</li>
+                            </ul>
+                        </div>
+
+                        <button class="btn btn-primary btn-block" id="btnDownloadPdf" onclick="downloadPDFReport()" style="margin-top:16px; background: linear-gradient(135deg, #1976D2, #1565C0);">
+                            <span>&#128196;</span> Download PDF Report
+                        </button>
+                        <div id="pdfError" style="color:red; font-size:13px; margin-top:8px; text-align:center;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+        <!-- ========================================== -->
+        <!-- TAB 3: Smart Alerts -->
+        <!-- ========================================== -->
+        <div id="tab-alerts" class="tab-content">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <h1 class="page-title">Smart Alerts & Monitoring</h1>
+                <button class="btn btn-outline" onclick="loadMockPatientHistory()">↻ Load Demo Patient Data</button>
+            </div>
+            <p class="page-subtitle">Test Anomaly Detection arrays and NLP Symptom Analysis for patient monitoring.</p>
+
+            <div class="grid-2">
+                <!-- NLP Symptoms input -->
+                <div class="card">
+                    <div class="card-header">NLP Symptom Analysis</div>
+                    <p style="font-size:13px; color:var(--text-muted); margin-bottom:16px;">
+                        The AI will analyze the patient's complaint (in Arabic or English) and classify the urgency.
+                    </p>
+                    <div class="form-group">
+                        <textarea id="symptomText" rows="4"
+                            placeholder="مثال: أشعر بتورم شديد في قدمي ولا أستطيع التبول منذ الصباح..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Patient Context ID (Optional)</label>
+                        <input type="text" id="symptomPatientId" value="demo_patient_001" placeholder="patient_001">
+                    </div>
+                    <button class="btn btn-primary" onclick="analyzeSymptoms()" id="btnSymptoms">
+                        Analyze Symptoms
+                    </button>
+
+                    <div id="symptomResult" class="hidden"
+                        style="margin-top: 24px; padding:16px; border-radius:8px; border:1px solid var(--border-light); background:#f8fafc;">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
+                            <strong>Urgency Assessment:</strong>
+                            <span id="symUrgency" style="font-weight:700;"></span>
+                        </div>
+                        <div style="font-size:13px; margin-bottom:8px;"><strong>Possible Conditions:</strong> <span
+                                id="symConditions"></span></div>
+                        <div style="font-size:13px;"><strong>Recommendations:</strong>
+                            <ul id="symRecs" style="margin-right:20px; margin-top:4px;"></ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Generated Alerts Dashboard -->
+                <div class="card">
+                    <div class="card-header" style="justify-content:space-between;">
+                        <span>Patient Alerts Dashboard</span>
+                        <button class="btn btn-primary" style="padding:6px 12px; font-size:12px;"
+                            onclick="fetchPatientAlerts('demo_patient_001')" id="btnFetchAlerts">Scan for
+                            Anomalies</button>
+                    </div>
+
+                    <div id="alertsContainer" style="max-height: 500px; overflow-y:auto; padding-right:8px;">
+                        <div style="text-align:center; padding:40px; color:var(--text-muted); opacity:0.6;">
+                            <span style="font-size:32px; display:block; margin-bottom:16px;"></span>
+                            Click 'Scan' to run Isolation Forest anomaly detection and predictive trend analysis on the
+                            demo patient's history.
+                        </div>
+                        <!-- Alerts populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- TAB 4: What-If Simulator (NEW) -->
+        <!-- ========================================== -->
+        <div id="tab-whatif" class="tab-content">
+            <h1 class="page-title">What-If Treatment Simulator</h1>
+            <p class="page-subtitle">Simulate how changing clinical parameters (like lowering BP or Creatinine) affects the patient's CKD risk and progression.</p>
+
+            <div class="grid-2">
+                <!-- Left Panel: Scenarios -->
+                <div class="card">
+                    <div class="card-header">Configure Scenarios</div>
+
+                    <!-- Baseline Header -->
+                    <div style="font-weight:600; font-size:14px; margin: 16px 0 8px 0; color:var(--primary-dark);">1. Baseline Patient Profile</div>
+                    <div class="grid-2" style="background:var(--bg-color); padding:12px; border-radius:8px; border:1px solid var(--border-light); margin-bottom: 24px;">
+                        <div class="form-group" style="margin-bottom:8px;">
+                            <label style="font-size:11px;">Age</label>
+                            <input type="number" id="w_age" value="65" style="padding:6px; font-size:13px;">
+                        </div>
+                        <div class="form-group" style="margin-bottom:8px;">
+                            <label style="font-size:11px;">Sex</label>
+                            <select id="w_sex" style="padding:6px; font-size:13px;">
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin-bottom:8px;">
+                            <label style="font-size:11px;">Diabetes</label>
+                            <select id="w_dm" style="padding:6px; font-size:13px;">
+                                <option value="0">None</option>
+                                <option value="1">Type 1</option>
+                                <option value="2" selected>Type 2</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Target Variables -->
+                    <div style="font-weight:600; font-size:14px; margin: 16px 0 8px 0; color:var(--primary-dark);">2. Treatment Targets (Variables)</div>
+                    <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:12px; color:var(--text-muted); padding:0 4px;">
+                        <span>Baseline (Current)</span>
+                        <span>Hypothetical (Target)</span>
+                    </div>
+
+                    <!-- Creatinine Slider -->
+                    <div class="whatif-slider-group" style="background:#f8fafc; border:1px solid #e2e8f0; padding:16px; border-radius:8px; margin-bottom:12px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                            <strong style="font-size:13px;">Serum Creatinine (mg/dL)</strong>
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <input type="number" id="w_base_cr" value="2.5" step="0.1" style="width:60px; padding:4px; font-size:12px; text-align:center;" onchange="syncWhatIfSliders('cr')">
+                                <span style="color:#94a3b8;">→</span>
+                                <input type="number" id="w_sim_cr" value="1.8" step="0.1" style="width:60px; padding:4px; font-size:12px; text-align:center; border-color:var(--primary);" onchange="document.getElementById('w_slider_cr').value=this.value">
+                            </div>
+                        </div>
+                        <input type="range" id="w_slider_cr" min="0.5" max="8.0" step="0.1" value="1.8" style="width:100%;" oninput="document.getElementById('w_sim_cr').value=this.value">
+                    </div>
+
+                    <!-- BP Slider -->
+                    <div class="whatif-slider-group" style="background:#f8fafc; border:1px solid #e2e8f0; padding:16px; border-radius:8px; margin-bottom:12px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                            <strong style="font-size:13px;">Systolic BP (mmHg)</strong>
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <input type="number" id="w_base_bp" value="160" step="1" style="width:60px; padding:4px; font-size:12px; text-align:center;" onchange="syncWhatIfSliders('bp')">
+                                <span style="color:#94a3b8;">→</span>
+                                <input type="number" id="w_sim_bp" value="125" step="1" style="width:60px; padding:4px; font-size:12px; text-align:center; border-color:var(--primary);" onchange="document.getElementById('w_slider_bp').value=this.value">
+                            </div>
+                        </div>
+                        <input type="range" id="w_slider_bp" min="90" max="220" step="1" value="125" style="width:100%;" oninput="document.getElementById('w_sim_bp').value=this.value">
+                    </div>
+
+                    <!-- UACR Slider -->
+                    <div class="whatif-slider-group" style="background:#f8fafc; border:1px solid #e2e8f0; padding:16px; border-radius:8px; margin-bottom:24px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                            <strong style="font-size:13px;">Urine Albumin Ratio (mg/g)</strong>
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <input type="number" id="w_base_uacr" value="200" step="5" style="width:60px; padding:4px; font-size:12px; text-align:center;" onchange="syncWhatIfSliders('uacr')">
+                                <span style="color:#94a3b8;">→</span>
+                                <input type="number" id="w_sim_uacr" value="30" step="5" style="width:60px; padding:4px; font-size:12px; text-align:center; border-color:var(--primary);" onchange="document.getElementById('w_slider_uacr').value=this.value">
+                            </div>
+                        </div>
+                        <input type="range" id="w_slider_uacr" min="0" max="1000" step="10" value="30" style="width:100%;" oninput="document.getElementById('w_sim_uacr').value=this.value">
+                    </div>
+
+                    <button class="btn btn-primary btn-block" onclick="runWhatIfSimulation()" id="btnWhatIf">
+                        <span>&#9881; Run Simulation</span>
+                    </button>
+                    <div id="whatIfError" style="color:red; font-size:13px; margin-top:12px; text-align:center;"></div>
+                </div>
+
+                <!-- Right Panel: Comparison Results -->
+                <div>
+                    <!-- Empty State -->
+                    <div id="whatIfEmpty" class="card" style="height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; opacity:0.6;">
+                        <span style="font-size:48px; margin-bottom:16px;">🔄</span>
+                        <h3 style="font-family:'Inter'; margin-bottom:8px;">Ready to Simulate</h3>
+                        <p style="font-size:14px; max-width:250px;">Adjust the target modifiers on the left and run simulation to see the impact on disease progression.</p>
+                    </div>
+
+                    <!-- Results State -->
+                    <div id="whatIfResults" class="hidden">
+                        
+                        <!-- Prediction Alert -->
+                        <div id="wiRiskBanner" style="padding:16px; border-radius:8px; margin-bottom:20px; display:flex; align-items:center; gap:12px; font-weight:600; color:#fff;">
+                            <span style="font-size:24px;" id="wiRiskIcon">🟢</span>
+                            <div style="flex:1;">
+                                <div style="font-size:12px; opacity:0.9;">Treatment Impact</div>
+                                <div id="wiRiskText" style="font-size:16px;">Risk significantly reduced</div>
+                            </div>
+                        </div>
+
+                        <!-- Side-by-side Cards -->
+                        <div style="display:flex; gap:16px; margin-bottom:20px;">
+                            <!-- Baseline Card -->
+                            <div class="card" style="flex:1; background:#f8fafc; border:1px solid #e2e8f0; margin:0; padding:20px;">
+                                <div style="font-size:12px; font-weight:700; color:#64748b; margin-bottom:16px; text-transform:uppercase; letter-spacing:1px; text-align:center;">Baseline State</div>
+                                
+                                <div style="text-align:center; margin-bottom:24px;">
+                                    <div style="font-size:12px; color:#475569; margin-bottom:4px;">Progression Risk</div>
+                                    <div style="font-size:32px; font-weight:800; color:#0f172a; font-family:'Inter';" id="wiBaseProb">--%</div>
+                                </div>
+
+                                <div style="display:flex; justify-content:space-between; padding:12px 0; border-top:1px solid #cbd5e1;">
+                                    <span style="font-size:13px; color:#475569;">GFR Stage</span>
+                                    <strong style="font-size:14px; color:#1e293b;" id="wiBaseStage">--</strong>
+                                </div>
+                                <div style="display:flex; justify-content:space-between; padding:12px 0; border-top:1px solid #cbd5e1;">
+                                    <span style="font-size:13px; color:#475569;">eGFR</span>
+                                    <strong style="font-size:14px; color:#1e293b;" id="wiBaseEgfr">--</strong>
+                                </div>
+                            </div>
+
+                            <!-- Divider Arrow -->
+                            <div style="display:flex; align-items:center; justify-content:center; font-size:24px; color:#94a3b8;">
+                                &#10142;
+                            </div>
+
+                            <!-- Simulated Card -->
+                            <div class="card" style="flex:1; margin:0; padding:20px; border:2px solid var(--primary); box-shadow: 0 4px 12px rgba(25, 118, 210, 0.1);">
+                                <div style="font-size:12px; font-weight:700; color:var(--primary); margin-bottom:16px; text-transform:uppercase; letter-spacing:1px; text-align:center;">Target Outcome</div>
+                                
+                                <div style="text-align:center; margin-bottom:24px; position:relative;">
+                                    <div style="font-size:12px; color:#475569; margin-bottom:4px;">Progression Risk</div>
+                                    <div style="font-size:32px; font-weight:800; color:var(--primary-dark); font-family:'Inter';" id="wiSimProb">--%</div>
+                                    <div id="wiDeltaProb" style="position:absolute; right:10px; top:0; font-size:12px; padding:2px 8px; border-radius:12px; font-weight:bold;"></div>
+                                </div>
+
+                                <div style="display:flex; justify-content:space-between; padding:12px 0; border-top:1px solid #e2e8f0; position:relative;">
+                                    <span style="font-size:13px; color:#475569;">GFR Stage</span>
+                                    <strong style="font-size:14px; color:#1e293b;" id="wiSimStage">--</strong>
+                                    <div id="wiDeltaStage" style="position:absolute; right:-10px; top:12px; font-size:12px; margin-right:12px; font-weight:bold;"></div>
+                                </div>
+                                <div style="display:flex; justify-content:space-between; padding:12px 0; border-top:1px solid #e2e8f0; position:relative;">
+                                    <span style="font-size:13px; color:#475569;">eGFR</span>
+                                    <strong style="font-size:14px; color:#1e293b;" id="wiSimEgfr">--</strong>
+                                    <div id="wiDeltaEgfr" style="position:absolute; right:-10px; top:12px; font-size:12px; margin-right:12px; font-weight:bold;"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recommendations based on simulation -->
+                        <div class="card" style="background:#f0f9ff; border-left:4px solid var(--primary);">
+                            <div style="font-size:14px; font-weight:600; color:var(--primary-dark); margin-bottom:8px;">Clinical Interpretation</div>
+                            <p id="wiImpactText" style="font-size:13px; color:#334155; line-height:1.6; margin:0;">
+                                --
+                            </p>
+                        </div>
+                        
+                        <div style="text-align:center; margin-top:16px;">
+                            <button class="btn btn-outline" onclick="transferWhatIfToAnalysis()">Use Target Profile in AI Analysis</button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- TAB 4: Medical Chatbot -->
+        <!-- ========================================== -->
+        <div id="tab-chat" class="tab-content">
+            <h1 class="page-title">Medical Assistant (RAG)</h1>
+            <p class="page-subtitle">Chat with the AI regarding kidney disease guidelines, test results, or medical
+                protocols.</p>
+
+            <div style="max-width: 800px; margin: 0 auto;">
+                <div class="chat-container">
+                    <div class="chat-messages" id="chatMessages">
+                        <!-- Initial Message -->
+                        <div class="message bot">
+                            <div class="msg-avatar"></div>
+                            <div class="msg-bubble">
+                                مرحباً دكتورة سارة. أنا المساعد الطبي الذكي لأمراض الكلى. كيف يمكنني مساعدتك اليوم؟
+                                (يمكنك سؤالي عن بروتوكولات العلاج، أو تفسير نتائج التحاليل).
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chat-input-area">
+                        <input type="text" id="chatInput" placeholder="اكتب سؤالك هنا..."
+                            onkeypress="if(event.key === 'Enter') sendChat()">
+                        <button class="chat-send-btn" onclick="sendChat()" id="btnChatSend">
+                            ➤
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+        <!-- ========================================== -->
+        <!-- TAB 6: CT Scan Classifier -->
+        <!-- ========================================== -->
+        <div id="tab-ct" class="tab-content">
+            <h1 class="page-title">CT Scan Classifier 🫁</h1>
+            <p class="page-subtitle">Upload a kidney CT scan image. The AI (MobileNetV2) will classify it as Normal, Cyst, Stone, or Tumor.</p>
+
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">📤 Upload CT Scan Image</div>
+                    <div class="upload-area" id="ctDropZone" onclick="document.getElementById('ctFile').click()">
+                        <input type="file" id="ctFile" accept="image/*" class="hidden" onchange="handleCTFileSelect(event)">
+                        <div class="upload-icon">🫁</div>
+                        <div class="upload-text">Click or drag a kidney CT scan image here</div>
+                        <div class="upload-hint">Accepted: JPG, PNG, DICOM-exported images</div>
+                    </div>
+                    <img id="ctPreview" src="" alt="CT Preview" style="max-width:100%; max-height:350px; margin-top:20px; display:none; border-radius:8px; border:1px solid var(--border-light);">
+                    <button class="btn btn-primary btn-block hidden" id="btnCT" style="margin-top:20px;" onclick="runCTAnalysis()">
+                        🔍 Analyze CT Scan
+                    </button>
+                    <div id="ctError" style="color:red; font-size:13px; margin-top:12px; text-align:center;"></div>
+                </div>
+
+                <div>
+                    <div id="ctResultEmpty" class="card" style="height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; opacity:0.6;">
+                        <span style="font-size:64px; margin-bottom:16px;">🔬</span>
+                        <h3 style="font-family:'Inter'; margin-bottom:8px;">Awaiting CT Scan</h3>
+                        <p style="font-size:14px;">Upload a kidney CT scan and click Analyze to get an AI classification result.</p>
+                    </div>
+
+                    <div id="ctResultData" class="hidden">
+                        <div class="card" style="text-align:center;">
+                            <div class="card-header" style="justify-content:center;">🤖 AI Classification Result</div>
+                            <div id="ctResultIcon" style="font-size:72px; margin: 16px 0;">❓</div>
+                            <div id="ctResultLabel" style="font-size:28px; font-weight:800; font-family:'Inter'; margin-bottom:8px;">--</div>
+                            <div id="ctResultConfidence" style="font-size:16px; color:var(--text-muted); margin-bottom:20px;">Confidence: --%</div>
+                            <div id="ctResultNote" style="font-size:13px; background:#f0f9ff; border:1px solid #bae6fd; border-radius:8px; padding:12px; color:#0369a1; text-align:right; line-height:1.7;"></div>
+                        </div>
+
+                        <div class="card" style="margin-top:0;">
+                            <div class="card-header">📊 Confidence Breakdown</div>
+                            <div id="ctProbBars"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- TAB 7: Smart Diet Planner -->
+        <!-- ========================================== -->
+        <div id="tab-diet" class="tab-content">
+            <h1 class="page-title">Smart Diet Planner 🥗</h1>
+            <p class="page-subtitle">Generate a personalized 7-day kidney-safe meal plan based on the patient's lab values and CKD stage, following strict KDIGO nutritional guidelines.</p>
+
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">🧪 Patient Lab Values</div>
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label>CKD Stage *</label>
+                            <select id="d_stage">
+                                <option value="G1">G1 – Normal (eGFR ≥ 90)</option>
+                                <option value="G2">G2 – Mildly Decreased</option>
+                                <option value="G3a">G3a – Mild to Moderate</option>
+                                <option value="G3b" selected>G3b – Moderate to Severe</option>
+                                <option value="G4">G4 – Severely Decreased</option>
+                                <option value="G5">G5 – Kidney Failure</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Age</label>
+                            <input type="number" id="d_age" value="60">
+                        </div>
+                        <div class="form-group">
+                            <label>Weight (kg)</label>
+                            <input type="number" id="d_weight" value="80" step="0.5">
+                        </div>
+                        <div class="form-group">
+                            <label>Potassium (mmol/L)</label>
+                            <input type="number" id="d_potassium" value="5.2" step="0.1">
+                        </div>
+                        <div class="form-group">
+                            <label>Phosphorus (mg/dL)</label>
+                            <input type="number" id="d_phosphorus" value="4.5" step="0.1">
+                        </div>
+                        <div class="form-group">
+                            <label>Blood Glucose (mg/dL)</label>
+                            <input type="number" id="d_glucose" value="110" step="1">
+                        </div>
+                        <div class="form-group">
+                            <label>Sodium (mmol/L)</label>
+                            <input type="number" id="d_sodium" value="138" step="1">
+                        </div>
+                        <div class="form-group">
+                            <label>Has Diabetes?</label>
+                            <select id="d_diabetes">
+                                <option value="false">No</option>
+                                <option value="true">Yes</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary btn-block" onclick="runDietPlanner()" id="btnDiet">
+                        🥗 Generate 7-Day Diet Plan
+                    </button>
+                    <div id="dietError" style="color:red; font-size:13px; margin-top:12px; text-align:center;"></div>
+                </div>
+
+                <div>
+                    <div id="dietResultEmpty" class="card" style="height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; opacity:0.6;">
+                        <span style="font-size:64px; margin-bottom:16px;">🥗</span>
+                        <h3 style="font-family:'Inter'; margin-bottom:8px;">No Plan Generated Yet</h3>
+                        <p style="font-size:14px;">Fill in the patient's values and click Generate to receive a personalized, kidney-safe weekly meal plan.</p>
+                    </div>
+
+                    <div id="dietResultData" class="hidden">
+                        <div class="card">
+                            <div class="card-header">📋 7-Day Kidney-Safe Meal Plan</div>
+                            <div id="dietWarnings" style="margin-bottom:16px;"></div>
+                            <div id="dietDaysContainer" style="display:flex; flex-direction:column; gap:16px;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- JavaScript Implementation -->
+    <script>
+        const API_BASE = 'http://localhost:8000';
+
+        // ─── INIT & TAB NAVIGATION ───
+
+        function switchTab(tabId) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            // Deactivate all sidebar nav items
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            // Show selected tab
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+            // Activate the correct nav item
+            const navEl = document.getElementById(`nav-${tabId}`);
+            if (navEl) navEl.classList.add('active');
+        }
+
+        async function checkSystemHealth() {
+            const el = document.getElementById('sysStatus');
+            const txt = document.getElementById('sysStatusText');
+            try {
+                const res = await fetch(`${API_BASE}/health`, { signal: AbortSignal.timeout(3000) });
+                if (res.ok) {
+                    el.className = 'system-status';
+                    txt.textContent = 'System Online';
+                } else throw new Error();
+            } catch {
+                el.className = 'system-status offline';
+                txt.textContent = 'API Offline';
+            }
+        }
+
+        // Initial health check
+        checkSystemHealth();
+        setInterval(checkSystemHealth, 20000);
+
+
+        // ─── TAB 1: AI ANALYSIS ───
+
+        const PRESETS = {
+            healthy: { a_name: 'Ahmed (Healthy)', a_age: 45, a_sex: 'male', a_cr: 0.9, a_uacr: 15, a_hba1c: 5.4, a_bp: 110, a_dm: "0" },
+            mild: { a_name: 'Sara (Mild)', a_age: 58, a_sex: 'female', a_cr: 1.4, a_uacr: 80, a_hba1c: 6.8, a_bp: 135, a_dm: "2" },
+            advanced: { a_name: 'Omar (Advanced)', a_age: 65, a_sex: 'male', a_cr: 3.1, a_uacr: 350, a_hba1c: 8.5, a_bp: 155, a_dm: "2" },
+            critical: { a_name: 'Hassan (Critical)', a_age: 72, a_sex: 'male', a_cr: 6.5, a_uacr: 1200, a_hba1c: 9.2, a_bp: 170, a_dm: "2" }
+        };
+
+        function fillAnalysisForm(type) {
+            const data = PRESETS[type];
+            for (const [key, val] of Object.entries(data)) {
+                document.getElementById(key).value = val;
+            }
+        }
+
+        async function runAIAnalysis() {
+            const btn = document.getElementById('btnAnalyze');
+            const err = document.getElementById('analysisError');
+            err.textContent = '';
+
+            const cr = parseFloat(document.getElementById('a_cr').value);
+            if (!cr) { err.textContent = 'Creatinine is required'; return; }
+
+            btn.innerHTML = '<div class="spinner"></div> Analyzing...';
+            btn.disabled = true;
+
+            const body = {
+                patient: {
+                    name: document.getElementById('a_name').value,
+                    age: parseInt(document.getElementById('a_age').value),
+                    sex: document.getElementById('a_sex').value
+                },
+                lab_values: {
+                    creatinine: cr,
+                    uacr: parseFloat(document.getElementById('a_uacr').value) || undefined,
+                    hba1c: parseFloat(document.getElementById('a_hba1c').value) || undefined,
+                    blood_pressure: parseInt(document.getElementById('a_bp').value) || undefined,
+                    diabetes_type: parseInt(document.getElementById('a_dm').value) || 0
+                }
+            };
+
+            try {
+                const res = await fetch(`${API_BASE}/predict`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+
+                if (!res.ok) throw new Error("API request failed");
+                const result = await res.json();
+
+                // Show results
+                document.getElementById('analysisResultsEmpty').classList.add('hidden');
+                document.getElementById('analysisResultsData').classList.remove('hidden');
+
+                // Render UI
+                renderAnalysisResultUI(result);
+
+            } catch (e) {
+                err.textContent = `Error: Cannot connect to API. Make sure uvicorn is running.`;
+            } finally {
+                btn.innerHTML = 'Run AI Analysis';
+                btn.disabled = false;
+            }
+        }
+
+        function renderAnalysisResultUI(data) {
+            // Store for PDF generation
+            lastPredictionResult = data;
+
+            // Risk Card
+            const riskMap = {
+                'Low Risk': { cls: 'risk-low', icon: '✅', color: '#166534' },
+                'Moderate Risk': { cls: 'risk-moderate', icon: '⚠️', color: '#854d0e' },
+                'High Risk': { cls: 'risk-high', icon: '', color: '#9a3412' },
+                'Very High Risk': { cls: 'risk-critical', icon: '', color: '#991b1b' }
+            };
+            const rInfo = riskMap[data.risk_level] || riskMap['Low Risk'];
+
+            const rCard = document.getElementById('resRiskCard');
+            rCard.className = `insight-card ${rInfo.cls}`;
+            document.getElementById('resRiskIcon').textContent = rInfo.icon;
+            document.getElementById('resRisk').textContent = data.risk_level;
+
+            const riskScore = data.enhanced_risk_score || (data.prediction ? 80 : 20);
+            document.getElementById('resRiskBar').style.width = `${riskScore}%`;
+
+            // Stage
+            document.getElementById('resStage').textContent = `Stage ${data.gfr_stage.replace('G', '')}`;
+
+            // Values
+            document.getElementById('resEgfr').textContent = data.egfr.toFixed(1);
+            document.getElementById('resProb').textContent = `${(data.probability * 100).toFixed(1)}%`;
+            if (data.prediction) document.getElementById('resProb').style.color = 'var(--risk-critical-text)';
+            else document.getElementById('resProb').style.color = 'var(--risk-low-text)';
+
+            // Alerts/Recs list
+            const l = document.getElementById('resAlerts');
+            l.innerHTML = '';
+            if (data.alerts && data.alerts.length > 0) {
+                data.alerts.forEach(a => {
+                    const li = document.createElement('li'); li.textContent = a; l.appendChild(li);
+                });
+            } else {
+                const li = document.createElement('li'); li.textContent = "All values are within normal limits."; l.appendChild(li);
+            }
+        }
+
+        // Store the last prediction result for PDF generation
+        let lastPredictionResult = null;
+
+        async function downloadPDFReport() {
+            if (!lastPredictionResult) {
+                document.getElementById('pdfError').textContent = 'Please run an AI Analysis first.';
+                return;
+            }
+
+            const btn = document.getElementById('btnDownloadPdf');
+            const err = document.getElementById('pdfError');
+            err.textContent = '';
+            btn.innerHTML = '<div class="spinner"></div> Generating PDF...';
+            btn.disabled = true;
+
+            const d = lastPredictionResult;
+
+            try {
+                const res = await fetch(`${API_BASE}/report/generate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        patient_name: document.getElementById('a_name').value || 'Patient',
+                        patient_age: parseInt(document.getElementById('a_age').value) || 50,
+                        patient_sex: document.getElementById('a_sex').value || 'male',
+                        prediction: d.prediction,
+                        probability: d.probability,
+                        risk_level: d.risk_level,
+                        gfr_stage: d.gfr_stage,
+                        egfr: d.egfr,
+                        albuminuria_category: d.albuminuria_category || null,
+                        acr: parseFloat(document.getElementById('a_uacr').value) || null,
+                        creatinine: parseFloat(document.getElementById('a_cr').value) || null,
+                        recommendations: d.recommendations || [],
+                        alerts: d.alerts || []
+                    })
+                });
+
+                if (!res.ok) throw new Error('PDF generation failed');
+
+                const blob = await res.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `kidney_report_${Date.now()}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+
+            } catch (e) {
+                err.textContent = `PDF Error: ${e.message}. Make sure reportlab is installed.`;
+            } finally {
+                btn.innerHTML = '<span>&#128196;</span> Download PDF Report';
+                btn.disabled = false;
+            }
+        }
+
+
+
+        // ─── TAB 3: SMART ALERTS ───
+
+        async function analyzeSymptoms() {
+            const text = document.getElementById('symptomText').value;
+            if (!text) return;
+
+            const btn = document.getElementById('btnSymptoms');
+            btn.innerHTML = '<div class="spinner"></div>';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(`${API_BASE}/alerts/symptoms`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        text: text,
+                        patient_id: document.getElementById('symptomPatientId').value
+                    })
+                });
+                if (!res.ok) throw new Error("");
+                const result = await res.json();
+
+                document.getElementById('symptomResult').classList.remove('hidden');
+
+                const uEl = document.getElementById('symUrgency');
+                uEl.textContent = result.urgency.toUpperCase();
+                if (result.urgency === 'emergency') uEl.style.color = 'var(--risk-critical-text)';
+                if (result.urgency === 'urgent') uEl.style.color = 'var(--risk-high-text)';
+                if (result.urgency === 'routine') uEl.style.color = 'var(--primary-blue)';
+
+                document.getElementById('symConditions').textContent = result.matched_conditions.map(c => c.name || c.name_en).join(', ') || 'Review required';
+
+                const rList = document.getElementById('symRecs');
+                rList.innerHTML = '';
+                result.recommendations.forEach(r => {
+                    const li = document.createElement('li'); li.textContent = r; rList.appendChild(li);
+                });
+
+            } catch (e) {
+                alert("Symptom analysis endpoint failed.");
+            } finally {
+                btn.innerHTML = 'Analyze Symptoms';
+                btn.disabled = false;
+            }
+        }
+
+        async function fetchPatientAlerts(pid) {
+            const btn = document.getElementById('btnFetchAlerts');
+            const cont = document.getElementById('alertsContainer');
+            btn.innerHTML = 'Scanning...';
+            btn.disabled = true;
+
+            try {
+                // Call analyze to force generation
+                await fetch(`${API_BASE}/alerts/analyze`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ patient_id: pid })
+                });
+
+                // Call GET to retrieve
+                const res = await fetch(`${API_BASE}/alerts/patient/${pid}`);
+                const data = await res.json();
+
+                cont.innerHTML = '';
+                if (!data.alerts || data.alerts.length === 0) {
+                    cont.innerHTML = '<div style="padding:24px; text-align:center;">No alerts found for this patient.</div>';
+                    return;
+                }
+
+                data.alerts.forEach(a => {
+                    const cls = `alert-${a.priority}`;
+                    let icon = 'ℹ️';
+                    if (a.priority === 'CRITICAL') icon = '';
+                    if (a.priority === 'WARNING') icon = '⚠️';
+
+                    cont.innerHTML += `
+                    <div class="alert-item ${cls}">
+                        <div class="alert-icon">${icon}</div>
+                        <div class="alert-content">
+                            <h4>${a.title}</h4>
+                            <p>${a.message}</p>
+                            <span class="alert-time">${a.timestamp.substring(0, 10)} • Type: ${a.alert_type}</span>
+                        </div>
+                    </div>`;
+                });
+
+            } catch (e) {
+                cont.innerHTML = `<div style="color:red; padding:16px;">Failed to fetch alerts. Ensure data exists via API first.</div>`;
+            } finally {
+                btn.innerHTML = 'Scan for Anomalies';
+                btn.disabled = false;
+            }
+        }
+
+        async function loadMockPatientHistory() {
+            const btn = document.querySelector('button[onclick="loadMockPatientHistory()"]');
+            btn.innerHTML = '&#8635; Loading Data...';
+            btn.disabled = true;
+
+            const pid = "demo_patient_001";
+            const measurements = [
+                // Simulating a worsening patient over 5 months
+                { date: "2025-01-01", egfr: 85.0, creatinine: 1.2, uacr: 30.0, hba1c: 6.5, bp_systolic: 125 },
+                { date: "2025-02-01", egfr: 82.0, creatinine: 1.3, uacr: 34.0, hba1c: 6.7, bp_systolic: 128 },
+                { date: "2025-03-01", egfr: 78.0, creatinine: 1.4, uacr: 40.0, hba1c: 6.9, bp_systolic: 132 },
+                { date: "2025-04-01", egfr: 65.0, creatinine: 1.8, uacr: 80.0, hba1c: 7.2, bp_systolic: 140 },
+                { date: "2025-05-01", egfr: 45.0, creatinine: 2.5, uacr: 180.0, hba1c: 8.5, bp_systolic: 160 } // Sudden drop anomaly
+            ];
+
+            try {
+                for (let m of measurements) {
+                    await fetch(`${API_BASE}/monitor/add`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            patient_id: pid,
+                            date: m.date,
+                            egfr: m.egfr,
+                            creatinine: m.creatinine,
+                            uacr: m.uacr,
+                            hba1c: m.hba1c,
+                            bp_systolic: m.bp_systolic
+                        })
+                    });
+                }
+                alert("Demo history (5 records) successfully loaded into backend memory! Now click 'Scan for Anomalies'.");
+            } catch (e) {
+                alert("Failed to load demo history. Ensure API is running.");
+            } finally {
+                btn.innerHTML = '&#8635; Load Demo Patient Data';
+                btn.disabled = false;
+            }
+        }
+
+
+        // ─── TAB 4: CHATBOT ───
+
+        async function sendChat() {
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            input.value = '';
+
+            const cont = document.getElementById('chatMessages');
+
+            // Add User msg
+            cont.innerHTML += `
+            <div class="message user">
+                <div class="msg-avatar"></div>
+                <div class="msg-bubble">${text}</div>
+            </div>`;
+            cont.scrollTop = cont.scrollHeight;
+
+            // Add Loading
+            const loadId = 'load-' + Date.now();
+            cont.innerHTML += `
+            <div class="message bot" id="${loadId}">
+                <div class="msg-avatar"></div>
+                <div class="msg-bubble"><div class="spinner dark"></div></div>
+            </div>`;
+            cont.scrollTop = cont.scrollHeight;
+
+            try {
+                const res = await fetch(`${API_BASE}/chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ question: text })
+                });
+
+                if (!res.ok) {
+                    const errData = await res.json().catch(() => ({}));
+                    throw new Error(errData.detail || `Server error (${res.status})`);
+                }
+
+                const data = await res.json();
+
+                // Check if RAG reported an error inside the response
+                const answer = data.answer || 'No response received.';
+                const bubble = document.getElementById(loadId).querySelector('.msg-bubble');
+                bubble.innerHTML = formatMarkdown(answer);
+
+                if (data.disclaimer) {
+                    bubble.innerHTML += `<br><small style="opacity:0.6">${data.disclaimer}</small>`;
+                }
+
+            } catch (e) {
+                document.getElementById(loadId).querySelector('.msg-bubble').innerHTML = 'عذراً، فشل الاتصال بخدمة الذكاء الاصطناعي.';
+            }
+            cont.scrollTop = cont.scrollHeight;
+        }
+
+        // Extremely simple bold formatter for chat
+        function formatMarkdown(text) {
+            return text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\n\*/g, '<br>•')
+                .replace(/\n\-/g, '<br>•')
+                .replace(/\n/g, '<br>');
+        }
+
+        // ==========================================
+        // What-If Simulator Logic
+        // ==========================================
+
+        function syncWhatIfSliders(field) {
+            // When base value changes, update the slider's initial position
+            const baseVal = document.getElementById(`w_base_${field}`).value;
+            // Optionally move the slider if user wants 'current' to be default target
+            // document.getElementById(`w_slider_${field}`).value = baseVal;
+            // document.getElementById(`w_sim_${field}`).value = baseVal;
+        }
+
+        async function runWhatIfSimulation() {
+            const btn = document.getElementById('btnWhatIf');
+            const err = document.getElementById('whatIfError');
+            
+            // Baseline data
+            const age = parseInt(document.getElementById('w_age').value) || 60;
+            const sex = document.getElementById('w_sex').value;
+            const dm = parseInt(document.getElementById('w_dm').value) || 0;
+            
+            const b_cr = parseFloat(document.getElementById('w_base_cr').value) || 1.0;
+            const b_bp = parseFloat(document.getElementById('w_base_bp').value) || 120;
+            const b_uacr = parseFloat(document.getElementById('w_base_uacr').value) || 10;
+
+            // Target data
+            const t_cr = parseFloat(document.getElementById('w_sim_cr').value) || b_cr;
+            const t_bp = parseFloat(document.getElementById('w_sim_bp').value) || b_bp;
+            const t_uacr = parseFloat(document.getElementById('w_sim_uacr').value) || b_uacr;
+
+            const mapUacrToAl = (u) => {
+                if (u < 30) return 0;
+                if (u < 300) return 2;
+                return 4;
+            };
+
+            const dmStr = dm === 0 ? "no" : "yes";
+
+            const basePayload = { 
+                age: age, 
+                sex: sex, 
+                sc: b_cr, 
+                bp: b_bp, 
+                al: mapUacrToAl(b_uacr), 
+                dm: dmStr 
+            };
+            
+            const simPayload = { 
+                age: age, 
+                sex: sex, 
+                sc: t_cr, 
+                bp: t_bp, 
+                al: mapUacrToAl(t_uacr), 
+                dm: dmStr 
+            };
+
+            err.textContent = '';
+            btn.innerHTML = '<div class="spinner"></div> Running...';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(`${API_BASE}/predict/whatif`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        baseline: basePayload,
+                        modified: simPayload
+                    })
+                });
+
+                if (!res.ok) {
+                    let errDetail = 'API request failed';
+                    try {
+                        const errJson = await res.json();
+                        errDetail = JSON.stringify(errJson.detail || errJson);
+                    } catch(e) {
+                        errDetail = await res.text();
+                    }
+                    throw new Error(errDetail);
+                }
+
+                const data = await res.json();
+                
+                // Hide empty state, show results
+                document.getElementById('whatIfEmpty').classList.add('hidden');
+                document.getElementById('whatIfResults').classList.remove('hidden');
+
+                const d = data.deltas;
+                const base = data.baseline;
+                const sim = data.modified;
+
+                // Update Baseline Card
+                document.getElementById('wiBaseProb').textContent = base.progression_risk_percent + '%';
+                document.getElementById('wiBaseStage').textContent = base.gfr_stage;
+                document.getElementById('wiBaseEgfr').textContent = base.egfr.toFixed(1);
+
+                // Update Sim Card
+                updateSimCard('wiSimProb', 'wiDeltaProb', sim.progression_risk_percent, d.progression_risk, true);
+                document.getElementById('wiSimStage').textContent = sim.gfr_stage;
+                updateSimCardStage(sim.gfr_stage, base.gfr_stage, d.stage_change);
+                updateSimCard('wiSimEgfr', 'wiDeltaEgfr', sim.egfr.toFixed(1), d.egfr, false); // false = higher is better
+
+                // Update Banner and Text
+                const banner = document.getElementById('wiRiskBanner');
+                const riskIcon = document.getElementById('wiRiskIcon');
+                const riskText = document.getElementById('wiRiskText');
+                const impactText = document.getElementById('wiImpactText');
+
+                if (d.risk_improved && d.probability < -0.05) {
+                    banner.style.background = 'linear-gradient(135deg, #16a34a, #15803d)';
+                    riskIcon.textContent = '🟢';
+                    riskText.textContent = 'Risk Significantly Reduced';
+                    let t = `Achieving these clinical targets reduces the progression risk by ${Math.abs((d.probability*100).toFixed(1))}%.`;
+                    if(d.egfr > 0) t += ` eGFR improves by ${d.egfr.toFixed(1)} points.`;
+                    impactText.textContent = t;
+                } else if (d.risk_improved) {
+                    banner.style.background = 'linear-gradient(135deg, #0ea5e9, #0369a1)';
+                    riskIcon.textContent = '🔵';
+                    riskText.textContent = 'Slight Improvement';
+                    impactText.textContent = `These changes result in a minor improvement. Progression risk decreases by ${Math.abs((d.probability*100).toFixed(1))}%. Further aggressive management may be required.`;
+                } else if (d.probability > 0.05) {
+                    banner.style.background = 'linear-gradient(135deg, #dc2626, #b91c1c)';
+                    riskIcon.textContent = '🔴';
+                    riskText.textContent = 'Risk Increased';
+                    impactText.textContent = `Warning: This scenario INCREASES kidney disease progression risk by ${(d.probability*100).toFixed(1)}%. These clinical values should be avoided.`;
+                } else {
+                    banner.style.background = 'linear-gradient(135deg, #64748b, #475569)';
+                    riskIcon.textContent = '⚪';
+                    riskText.textContent = 'No Significant Change';
+                    impactText.textContent = `This scenario results in negligible changes to the overall progression risk.`;
+                }
+
+            } catch (e) {
+                err.textContent = `Simulation Error: ${e.message}`;
+            } finally {
+                btn.innerHTML = '<span>&#9881; Run Simulation</span>';
+                btn.disabled = false;
+            }
+        }
+
+        function updateSimCard(mainId, deltaId, val, delta, lowerIsBetter) {
+            document.getElementById(mainId).textContent = val + (mainId.includes('Prob') ? '%' : '');
+            const dn = document.getElementById(deltaId);
+            if (delta === 0) {
+                dn.textContent = '0';
+                dn.style.background = '#f1f5f9';
+                dn.style.color = '#64748b';
+            } else {
+                const isImprovement = lowerIsBetter ? delta < 0 : delta > 0;
+                dn.textContent = (delta > 0 ? '+' : '') + (mainId.includes('Prob') ? delta.toFixed(1) + '%' : delta.toFixed(1));
+                dn.style.background = isImprovement ? '#dcfce7' : '#fee2e2';
+                dn.style.color = isImprovement ? '#166534' : '#991b1b';
+            }
+        }
+
+        function updateSimCardStage(simStage, baseStage, changeStr) {
+            const dn = document.getElementById('wiDeltaStage');
+            if (simStage === baseStage) {
+                dn.textContent = '';
+                dn.style.background = 'transparent';
+                dn.style.color = 'transparent';
+            } else {
+                // If simple numeric comparison works for G1-G5:
+                const simN = parseInt(simStage.replace('G','')) || 0;
+                const baseN = parseInt(baseStage.replace('G','')) || 0;
+                const isImprovement = simN < baseN;
+                
+                dn.textContent = isImprovement ? '↓ Improved' : '↑ Worsened';
+                dn.style.background = isImprovement ? '#dcfce7' : '#fee2e2';
+                dn.style.color = isImprovement ? '#166534' : '#991b1b';
+            }
+        }
+
+        function transferWhatIfToAnalysis() {
+            document.getElementById('a_age').value = document.getElementById('w_age').value;
+            document.getElementById('a_sex').value = document.getElementById('w_sex').value;
+            document.getElementById('a_cr').value = document.getElementById('w_sim_cr').value;
+            document.getElementById('a_sys_bp').value = document.getElementById('w_sim_bp').value;
+            document.getElementById('a_uacr').value = document.getElementById('w_sim_uacr').value;
+            document.querySelector('.nav-tab[onclick="switchTab(\'analysis\')"]').click();
+        }
+
+        // ==========================================
+        // CT SCAN CLASSIFIER
+        // ==========================================
+
+        let ctFile = null;
+
+        function handleCTFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            ctFile = file;
+            const preview = document.getElementById('ctPreview');
+            preview.src = URL.createObjectURL(file);
+            preview.style.display = 'block';
+            document.getElementById('btnCT').classList.remove('hidden');
+            document.getElementById('ctError').textContent = '';
+        }
+
+        // Also support drag-and-drop on CT zone
+        document.addEventListener('DOMContentLoaded', () => {
+            const ctZone = document.getElementById('ctDropZone');
+            if (ctZone) {
+                ctZone.addEventListener('dragover', e => { e.preventDefault(); ctZone.classList.add('dragover'); });
+                ctZone.addEventListener('dragleave', () => ctZone.classList.remove('dragover'));
+                ctZone.addEventListener('drop', e => {
+                    e.preventDefault();
+                    ctZone.classList.remove('dragover');
+                    const file = e.dataTransfer.files[0];
+                    if (file && file.type.startsWith('image/')) {
+                        ctFile = file;
+                        const preview = document.getElementById('ctPreview');
+                        preview.src = URL.createObjectURL(file);
+                        preview.style.display = 'block';
+                        document.getElementById('btnCT').classList.remove('hidden');
+                    }
+                });
+            }
+        });
+
+        const CT_CLASS_META = {
+            'Normal':  { icon: '✅', note: 'No abnormalities detected. The kidney tissue appears healthy. Continue routine monitoring as per the patient\'s CKD stage.' },
+            'Cyst':    { icon: '🫧', note: 'A cystic lesion was detected. Most renal cysts are benign (Bosniak I/II), but follow-up imaging in 6-12 months is recommended to monitor size and morphology.' },
+            'Stone':   { icon: '🪨', note: 'A kidney stone (nephrolithiasis) was detected. Management depends on stone size and location. Urological consultation and dietary adjustment are advised.' },
+            'Tumor':   { icon: '⚠️', note: 'A renal mass was detected that may indicate a tumor. Urgent urological and oncological consultation is strongly recommended for further characterization (contrast CT / MRI / biopsy).' }
+        };
+
+        async function runCTAnalysis() {
+            if (!ctFile) { document.getElementById('ctError').textContent = 'Please upload a CT scan image first.'; return; }
+            const btn = document.getElementById('btnCT');
+            const err = document.getElementById('ctError');
+            err.textContent = '';
+            btn.innerHTML = '<div class="spinner"></div> Analyzing...';
+            btn.disabled = true;
+
+            try {
+                const formData = new FormData();
+                formData.append('file', ctFile);
+                const res = await fetch(`${API_BASE}/predict/ct`, { method: 'POST', body: formData });
+                if (!res.ok) {
+                    const errJson = await res.json().catch(() => ({}));
+                    throw new Error(errJson.detail || `API Error ${res.status}`);
+                }
+                const data = await res.json();
+                const label = data.prediction || 'Unknown';
+                const conf  = data.confidence_percentage ?? (data.confidence ? data.confidence * 100 : 0);
+                const meta  = CT_CLASS_META[label] || { icon: '❓', note: data.clinical_note || '' };
+
+                document.getElementById('ctResultEmpty').classList.add('hidden');
+                document.getElementById('ctResultData').classList.remove('hidden');
+                document.getElementById('ctResultIcon').textContent = meta.icon;
+                document.getElementById('ctResultLabel').textContent = label;
+                document.getElementById('ctResultConfidence').textContent = `Confidence: ${conf.toFixed(1)}%`;
+                document.getElementById('ctResultNote').textContent = data.clinical_note || meta.note;
+
+                // Confidence Breakdown bars
+                const barsDiv = document.getElementById('ctProbBars');
+                barsDiv.innerHTML = '';
+                const classes = data.class_probabilities || { [label]: conf / 100 };
+                const colors = { Normal: '#16a34a', Cyst: '#0ea5e9', Stone: '#f59e0b', Tumor: '#dc2626' };
+                Object.entries(classes).forEach(([cls, prob]) => {
+                    const pct = (prob * 100).toFixed(1);
+                    barsDiv.innerHTML += `
+                        <div style="margin-bottom:12px;">
+                            <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:4px;">
+                                <span style="font-weight:600;">${cls}</span><span>${pct}%</span>
+                            </div>
+                            <div style="height:8px; background:#e2e8f0; border-radius:4px; overflow:hidden;">
+                                <div style="height:100%; width:${pct}%; background:${colors[cls] || '#64748b'}; border-radius:4px; transition:width 1s ease;"></div>
+                            </div>
+                        </div>`;
+                });
+
+            } catch(e) {
+                err.textContent = `CT Analysis Error: ${e.message}`;
+            } finally {
+                btn.innerHTML = '🔍 Analyze CT Scan';
+                btn.disabled = false;
+            }
+        }
+
+        // ==========================================
+        // SMART DIET PLANNER
+        // ==========================================
+
+        async function runDietPlanner() {
+            const btn = document.getElementById('btnDiet');
+            const err = document.getElementById('dietError');
+            err.textContent = '';
+            btn.innerHTML = '<div class="spinner"></div> Generating Plan...';
+            btn.disabled = true;
+
+            const payload = {
+                ckd_stage:        document.getElementById('d_stage').value,
+                age:              parseInt(document.getElementById('d_age').value) || 60,
+                weight_kg:        parseFloat(document.getElementById('d_weight').value) || 80,
+                potassium_level:  parseFloat(document.getElementById('d_potassium').value) || 4.5,
+                phosphorus_level: parseFloat(document.getElementById('d_phosphorus').value) || 3.5,
+                glucose_level:    parseFloat(document.getElementById('d_glucose').value) || 100,
+                sodium_level:     parseFloat(document.getElementById('d_sodium').value) || 138,
+                has_diabetes:     document.getElementById('d_diabetes').value === 'true'
+            };
+
+            try {
+                const res = await fetch(`${API_BASE}/diet/plan`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!res.ok) {
+                    const errJson = await res.json().catch(() => ({}));
+                    throw new Error(errJson.detail || `API Error ${res.status}`);
+                }
+                const data = await res.json();
+
+                document.getElementById('dietResultEmpty').classList.add('hidden');
+                document.getElementById('dietResultData').classList.remove('hidden');
+
+                // Render warnings / restrictions
+                const warnDiv = document.getElementById('dietWarnings');
+                warnDiv.innerHTML = '';
+                const restrictions = data.dietary_restrictions || [];
+                if (restrictions.length > 0) {
+                    warnDiv.innerHTML = `
+                        <div style="background:#fff7ed; border:1px solid #fdba74; border-radius:8px; padding:12px 16px; font-size:13px; color:#9a3412;">
+                            <strong>⚠️ Key Restrictions for This Patient:</strong>
+                            <ul style="margin-top:6px; margin-right:20px; line-height:1.7;">
+                                ${restrictions.map(r => `<li>${r}</li>`).join('')}
+                            </ul>
+                        </div>`;
+                }
+
+                // Render each day
+                const container = document.getElementById('dietDaysContainer');
+                container.innerHTML = '';
+                const days = data.diet_plan?.days || data.days || [];
+                const dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+
+                days.forEach((day, idx) => {
+                    const meals = day.meals || [];
+                    const mealRows = meals.map(m => `
+                        <tr style="border-top:1px solid #f1f5f9;">
+                            <td style="padding:8px 12px; font-weight:600; color:#475569; white-space:nowrap;">${m.type || m.meal_type || ''}</td>
+                            <td style="padding:8px 12px; color:#1e293b;">${m.food || m.description || ''}</td>
+                            <td style="padding:8px 12px; font-size:12px; color:#64748b;">${m.reason || m.notes || ''}</td>
+                        </tr>`).join('');
+
+                    container.innerHTML += `
+                        <div style="border:1px solid #e2e8f0; border-radius:10px; overflow:hidden;">
+                            <div style="background:#eff6ff; padding:10px 16px; font-weight:700; color:#1e40af; display:flex; align-items:center; gap:8px;">
+                                <span>📅</span> Day ${day.day || idx + 1} &mdash; ${dayNames[(idx) % 7]}
+                            </div>
+                            <table style="width:100%; border-collapse:collapse; font-size:13px;">
+                                <thead>
+                                    <tr style="background:#f8fafc;">
+                                        <th style="padding:8px 12px; text-align:right; color:#94a3b8; font-size:11px; text-transform:uppercase;">Meal</th>
+                                        <th style="padding:8px 12px; text-align:right; color:#94a3b8; font-size:11px; text-transform:uppercase;">Food</th>
+                                        <th style="padding:8px 12px; text-align:right; color:#94a3b8; font-size:11px; text-transform:uppercase;">Notes</th>
+                                    </tr>
+                                </thead>
+                                <tbody>${mealRows}</tbody>
+                            </table>
+                        </div>`;
+                });
+
+                if (days.length === 0) {
+                    container.innerHTML = `<p style="color:var(--text-muted); text-align:center; padding:20px;">
+                        The server returned a plan but with no day data. Check the raw response format.</p>`;
+                }
+
+            } catch(e) {
+                err.textContent = `Diet Planner Error: ${e.message}`;
+            } finally {
+                btn.innerHTML = '🥗 Generate 7-Day Diet Plan';
+                btn.disabled = false;
+            }
+        }
+
+    </script>
+</body>
+
+</html>

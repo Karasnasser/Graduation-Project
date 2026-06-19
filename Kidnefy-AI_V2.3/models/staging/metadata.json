@@ -1,0 +1,25 @@
+{
+    "features": [
+        "serum_creatinine",
+        "gfr",
+        "bun",
+        "serum_calcium",
+        "ana",
+        "c3_c4",
+        "hematuria",
+        "oxalate_levels",
+        "urine_ph",
+        "blood_pressure",
+        "water_intake",
+        "months"
+    ],
+    "classes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+    ],
+    "accuracy": 0.9852272727272727
+}

@@ -1,0 +1,9 @@
+group,count,ckd_label,accuracy,mean_probability,mean_confidence,low_confidence_pct
+G2 Mildly Reduced CKD,800,1,0.7575,0.7004,0.4467,60.0
+G1 Healthy Controls,1000,0,0.87,0.4329,0.1693,100.0
+Edge Cases Threshold Zone,600,1,0.9883,0.879,0.76,18.83
+G3a Moderate CKD,700,1,1.0,0.9262,0.8523,0.57
+G3b Moderate-Severe CKD,600,1,1.0,0.9288,0.8576,0.83
+G4 Severe CKD,500,1,1.0,0.931,0.8621,0.2
+G5 Kidney Failure,400,1,1.0,0.9351,0.8702,0.0
+Multi-Comorbidity Complex,400,1,1.0,0.9289,0.8578,0.0

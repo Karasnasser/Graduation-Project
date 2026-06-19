@@ -1,0 +1,18 @@
+# Docker-specific ignores
+.venv/
+venv/
+__pycache__/
+*.pyc
+.git/
+.gitignore
+.env
+*.md
+notebooks/
+sample_images/
+tests/
+test_*.py
+.pytest_cache/
+htmlcov/
+.coverage
+.vscode/
+.idea/
